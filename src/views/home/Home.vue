@@ -1,12 +1,14 @@
 <template>
 <div id="home">
 <nav-bar class="home-nav"><div slot='center'>购物街</div></nav-bar>
-<home-swipe :banner="banner"></home-swipe>
-<recommend-view :recommends="recommends"></recommend-view>
-<feature-view></feature-view>
-<tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
-<goods-list :goods="showGoods"></goods-list>
-
+<scroll class="content" ref="scroll" :probe-type="3" @scroll='contentScroll'>
+  <home-swipe :banner="banner"></home-swipe>
+  <recommend-view :recommends="recommends"></recommend-view>
+  <feature-view></feature-view>
+  <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
+  <goods-list :goods="showGoods"></goods-list>
+</scroll>
+<back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
 </div>
 </template>
 
@@ -19,6 +21,8 @@ import FeatureView from './homeCoplate/FeatureView.vue'
 import NavBar from '../../components/common/navbar/NavBar.vue'
 import TabControl from '../../components/content/tabControl/TabControl.vue'
 import GoodsList from '../../components/content/goods/GoodsList.vue'
+import Scroll from '../../components/common/scroll/Scroll.vue'
+import BackTop from '../../components/content/backTop/BackTop.vue'
 //发送请求
 import { getHomeMultidata } from "../../network/home";
 import {getHomeGoods} from "../../network/home"
@@ -33,6 +37,8 @@ components:{
   TabControl,
   NavBar,
   GoodsList,
+  Scroll,
+  BackTop
 },
 data(){
   return {
@@ -43,7 +49,8 @@ data(){
       'new':{page:0,list:[]},
       'sell':{page:0,list:[]},
     },
-    currentType:'pop'
+    currentType:'pop',
+    isShowBackTop:false
   }
 },
 created(){
@@ -67,8 +74,14 @@ methods:{
       case 0: this.currentType='pop';break;
       case 1: this.currentType='new';break;
       case 2: this.currentType='sell';break
-
     }
+  },
+  backClick(){
+    this.$refs.scroll.bScroll.scrollTo(0, 0,1000)
+    // console.log('dianj')
+  },
+  contentScroll(position){
+    this.isShowBackTop = (-position.y) > 1000
   },
   //网络请求的封住
   getHomeMultidata(){
@@ -92,9 +105,11 @@ methods:{
 }
 </script>
 
-<style>
+<style scoped>
 #home{
   padding-top:44px;
+  height: 100vh;
+  position: relative;
 }
 .home-nav{
   background: var(--color-tint);
@@ -110,4 +125,15 @@ methods:{
   top:44px;
   z-index: 9;
 }
+.content{
+height: calc(100% - 49px);
+overflow: hidden;
+}
+ /* .content {
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+  } */
 </style>
