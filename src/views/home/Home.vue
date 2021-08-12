@@ -1,7 +1,8 @@
 <template>
 <div id="home">
 <nav-bar class="home-nav"><div slot='center'>购物街</div></nav-bar>
-<scroll class="content" ref="scroll" :probe-type="3" @scroll='contentScroll'>
+<scroll class="content" ref="scroll" :probe-type="3" @scroll='contentScroll'
+ :pull-up-load="true" @pullingUp="loadMore">
   <home-swipe :banner="banner"></home-swipe>
   <recommend-view :recommends="recommends"></recommend-view>
   <feature-view></feature-view>
@@ -54,13 +55,19 @@ data(){
   }
 },
 created(){
-  //请求多个数据
+  //1、请求多个数据
 this.getHomeMultidata()
 
- //请求商品数据
+ //2、请求商品数据
 this.getHomeGoods('pop')
 this.getHomeGoods('new')
 this.getHomeGoods('sell')
+},
+mounted(){
+  //3、监听item中图片的加载进度
+   this.$bus.$on('itemImageLoad',()=>{
+   this.$refs.scroll.refresh()
+ })
 },
 computed:{
   showGoods(){
@@ -68,7 +75,7 @@ computed:{
   }
 },
 methods:{
-  //方法的封住
+  //流行，新款、精选的方法的封装
   tabClick(index){
     switch(index){
       case 0: this.currentType='pop';break;
@@ -78,10 +85,12 @@ methods:{
   },
   backClick(){
     this.$refs.scroll.bScroll.scrollTo(0, 0,1000)
-    // console.log('dianj')
   },
   contentScroll(position){
     this.isShowBackTop = (-position.y) > 1000
+  },
+  loadMore(){
+    this.getHomeGoods(this.currentType)
   },
   //网络请求的封住
   getHomeMultidata(){
@@ -99,6 +108,7 @@ methods:{
           //  }
     this.goods[type].list.push(...res.data.list);
     this.goods[type].page += 1
+    this.$refs.scroll.finishPullUp()
  })
   }
 }
@@ -126,8 +136,8 @@ methods:{
   z-index: 9;
 }
 .content{
-height: calc(100% - 49px);
-overflow: hidden;
+height: calc(100% - 93px);
+/* overflow: hidden; */
 }
  /* .content {
     position: absolute;
