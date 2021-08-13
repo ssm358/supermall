@@ -41,9 +41,11 @@ mounted(){
   })
   this.bScroll.scrollTo(0,0);
   //监听滚动的事件
-  this.bScroll.on('scroll',(position)=>{
+  if(this.probeType ===2 || this.probeType ===3){
+    this.bScroll.on('scroll',(position)=>{
     this.$emit('scroll',position)
-  }),
+    })
+  }
   //监听上拉加载更多事件
   this.bScroll.on('pullingUp',()=>{
     this.$emit('pullingUp')

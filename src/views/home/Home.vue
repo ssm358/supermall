@@ -27,6 +27,7 @@ import BackTop from '../../components/content/backTop/BackTop.vue'
 //发送请求
 import { getHomeMultidata } from "../../network/home";
 import {getHomeGoods} from "../../network/home"
+// import {debounce} from '../../common/utils'
 
 
 export default {
@@ -64,9 +65,10 @@ this.getHomeGoods('new')
 this.getHomeGoods('sell')
 },
 mounted(){
+  const refresh =this.debounce(this.$refs.scroll.refresh,200)
   //3、监听item中图片的加载进度
    this.$bus.$on('itemImageLoad',()=>{
-   this.$refs.scroll.refresh()
+   refresh()
  })
 },
 computed:{
@@ -83,6 +85,15 @@ methods:{
       case 2: this.currentType='sell';break
     }
   },
+ debounce(func, delay) {
+    let timer = null
+    return function(...args) {
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+            func.apply(this, args)
+        }, delay);
+    }
+},
   backClick(){
     this.$refs.scroll.bScroll.scrollTo(0, 0,1000)
   },
