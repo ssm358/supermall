@@ -1,12 +1,13 @@
 <template>
 <div id="home">
 <nav-bar class="home-nav"><div slot='center'>购物街</div></nav-bar>
+<tab-control :titles="['流行','新款','精选']" @tabClick="tabClick" ref="tabControl1" class="tab-control" v-show="isFixed"></tab-control>
 <scroll class="content" ref="scroll" :probe-type="3" @scroll='contentScroll'
  :pull-up-load="true" @pullingUp="loadMore">
-  <home-swipe :banner="banner"></home-swipe>
+  <home-swipe :banner="banner" @tabSwiper="tabSwiper"></home-swipe>
   <recommend-view :recommends="recommends"></recommend-view>
   <feature-view></feature-view>
-  <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
+  <tab-control :titles="['流行','新款','精选']" @tabClick="tabClick" ref="tabControl2" ></tab-control>
   <goods-list :goods="showGoods"></goods-list>
 </scroll>
 <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -52,7 +53,9 @@ data(){
       'sell':{page:0,list:[]},
     },
     currentType:'pop',
-    isShowBackTop:false
+    isShowBackTop:false,
+    baroffsetTop:null,
+    isFixed:false
   }
 },
 created(){
@@ -84,6 +87,8 @@ methods:{
       case 1: this.currentType='new';break;
       case 2: this.currentType='sell';break
     }
+    this.$refs.tabControl1.currentIndex = index
+    this.$refs.tabControl2.currentIndex = index
   },
  debounce(func, delay) {
     let timer = null
@@ -98,7 +103,10 @@ methods:{
     this.$refs.scroll.bScroll.scrollTo(0, 0,1000)
   },
   contentScroll(position){
+    //判读BackTop是否显示
     this.isShowBackTop = (-position.y) > 1000
+    //判读tarcontrol是否吸顶
+    this.isFixed = (-position.y) > this.offsetTop
   },
   loadMore(){
     this.getHomeGoods(this.currentType)
@@ -120,41 +128,45 @@ methods:{
     this.goods[type].list.push(...res.data.list);
     this.goods[type].page += 1
     this.$refs.scroll.finishPullUp()
- })
+    })
+  },
+  //监听首页轮播图是否加载完成
+  tabSwiper(){
+    //获取tar-control的offsetTop高度
+    this.offsetTop = this.$refs.tabControl2.$el.offsetTop;
   }
-}
+ }
 }
 </script>
 
 <style scoped>
 #home{
-  padding-top:44px;
+
   height: 100vh;
   position: relative;
 }
 .home-nav{
   background: var(--color-tint);
   color:#fff;
-  position: fixed;
-  left:0;
-  top:0px;
+}
+.tabFixed{
+  position:fixed;
+  top:44px;
+  left: 0;
   right: 0;
-  z-index: 5;
 }
 .tab-control{
-  position: sticky;
-  top:44px;
+  position:relative;
   z-index: 9;
 }
 .content{
-height: calc(100% - 93px);
-/* overflow: hidden; */
+/* height: calc(100% - 93px); */
+overflow: hidden;
+position:absolute;
+top:44px;
+bottom: 49px;
+left: 0px;
+right: 0;
 }
- /* .content {
-    position: absolute;
-    top: 44px;
-    bottom: 49px;
-    left: 0;
-    right: 0;
-  } */
+
 </style>
