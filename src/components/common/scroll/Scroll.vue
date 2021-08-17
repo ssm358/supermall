@@ -31,6 +31,9 @@ methods:{
   },
   refresh(){
     this.bScroll && this.bScroll.refresh()
+  },
+  getScrollY(){
+    return this.bScroll ? this.bScroll.y:0
   }
 },
 mounted(){

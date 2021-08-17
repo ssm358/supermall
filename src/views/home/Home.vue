@@ -55,7 +55,8 @@ data(){
     currentType:'pop',
     isShowBackTop:false,
     baroffsetTop:null,
-    isFixed:false
+    isFixed:false,
+    saveY:0
   }
 },
 created(){
@@ -79,6 +80,13 @@ computed:{
     return  this.goods[ this.currentType].list
   }
 },
+activated(){
+  this.$refs.scroll.bScroll.scrollTo(0,this.saveY,0)
+  this.$refs.scroll.refresh()
+},
+deactivated(){
+  this.saveY = this.$refs.scroll.getScrollY()
+},
 methods:{
   //流行，新款、精选的方法的封装
   tabClick(index){
@@ -100,7 +108,7 @@ methods:{
     }
 },
   backClick(){
-    this.$refs.scroll.bScroll.scrollTo(0, 0,1000)
+    this.$refs.scroll.bScroll.scrollTo(0, 0,500)
   },
   contentScroll(position){
     //判读BackTop是否显示
